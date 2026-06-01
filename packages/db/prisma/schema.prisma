@@ -1,0 +1,178 @@
+// RideAI database schema.
+// Enums mirror the string enums in @rideai/shared/src/enums.ts — keep them in sync.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums (must match @rideai/shared)
+// ---------------------------------------------------------------------------
+
+enum ServiceType {
+  RIDE
+  FOOD
+  QUICK_COMMERCE
+}
+
+enum Platform {
+  UBER
+  OLA
+  RAPIDO
+  ZOMATO
+  SWIGGY
+  ZEPTO
+  BLINKIT
+}
+
+enum VehicleType {
+  BIKE
+  AUTO
+  MINI
+  SEDAN
+  SUV
+}
+
+enum CouponType {
+  PUBLIC
+  NEW_USER
+  INACTIVE_USER
+  SEGMENT
+  ACCOUNT_SPECIFIC
+}
+
+enum DiscountType {
+  PERCENT
+  FLAT
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  FAILED
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+
+model User {
+  id                    String    @id @default(cuid())
+  phone                 String    @unique
+  email                 String?   @unique
+  name                  String?
+  city                  String?
+  /// Platforms the user self-reported during onboarding: Platform[] as JSON.
+  selfReportedPlatforms Json      @default("[]")
+  totalBookings         Int       @default(0)
+  lastBookingDate       DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  platformHistory PlatformHistory[]
+  bookings        Booking[]
+  couponUsages    UserCouponUsage[]
+  searchLogs      SearchLog[]
+
+  @@index([city])
+}
+
+model PlatformHistory {
+  id            String    @id @default(cuid())
+  userId        String
+  platform      Platform
+  bookingsCount Int       @default(0)
+  firstUsedAt   DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, platform])
+  @@index([userId])
+}
+
+model Coupon {
+  id             String       @id @default(cuid())
+  code           String
+  platform       Platform
+  type           CouponType   @default(PUBLIC)
+  /// Service type the coupon is valid for; null = any.
+  validFor       ServiceType?
+  firstOrderOnly Boolean      @default(false)
+  accountSpecific Boolean     @default(false)
+  discountType   DiscountType @default(FLAT)
+  discountValue  Float
+  maxDiscount    Float?
+  minFare        Float?
+  validForCity   String?
+  /// 0..1 historical apply-success rate from validation runs.
+  successRate    Float?
+  lastVerified   DateTime?
+  expiresAt      DateTime?
+  /// Where it was scraped from, e.g. "couponDunia" / "grabOn".
+  source         String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  usages UserCouponUsage[]
+
+  @@unique([code, platform])
+  @@index([platform, type])
+  @@index([expiresAt])
+}
+
+model UserCouponUsage {
+  id         String   @id @default(cuid())
+  userId     String
+  couponCode String
+  platform   Platform
+  usedAt     DateTime @default(now())
+  bookingId  String?
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coupon Coupon  @relation(fields: [couponCode, platform], references: [code, platform], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([couponCode, platform])
+}
+
+model Booking {
+  id            String        @id @default(cuid())
+  userId        String
+  platform      Platform
+  serviceType   ServiceType
+  vehicleType   VehicleType?
+  fromLocation  String
+  toLocation    String?
+  fare          Float
+  couponApplied String?
+  savings       Float         @default(0)
+  status        BookingStatus @default(PENDING)
+  createdAt     DateTime      @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([platform, serviceType])
+  @@index([createdAt])
+}
+
+model SearchLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  rawPrompt   String
+  /// IntentParseResult serialised as JSON.
+  parsedIntent Json?
+  createdAt   DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([createdAt])
+}

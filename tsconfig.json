@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "moduleDetection": "force",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "paths": {
+      "@rideai/shared": ["./packages/shared/src/index.ts"],
+      "@rideai/shared/*": ["./packages/shared/src/*"],
+      "@rideai/db": ["./packages/db/src/index.ts"],
+      "@rideai/db/*": ["./packages/db/src/*"],
+      "@rideai/ai-core": ["./packages/ai-core/src/index.ts"],
+      "@rideai/ai-core/*": ["./packages/ai-core/src/*"],
+      "@rideai/scrapers": ["./packages/scrapers/src/index.ts"],
+      "@rideai/scrapers/*": ["./packages/scrapers/src/*"]
+    }
+  },
+  "ts-node": {
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "CommonJS",
+      "moduleResolution": "Node"
+    }
+  },
+  "exclude": ["node_modules", "dist", ".next", ".expo", "build"]
+}

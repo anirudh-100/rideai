@@ -1,0 +1,36 @@
+# Cursor rules — RideAI
+
+You are working in the RideAI monorepo (Turborepo + npm workspaces). Read
+CLAUDE.md for full context. Follow these rules strictly.
+
+## Stack (do not deviate)
+- TypeScript only, strict mode. Never write plain JavaScript source files.
+- Monorepo: Turborepo + npm workspaces. Package manager is npm (never yarn/pnpm).
+- Mobile: React Native + Expo (SDK 51+), Expo Router, NativeWind for styling.
+- Web + Admin: Next.js 14 App Router.
+- Backend: Hono (NEVER Express).
+- DB: Prisma + PostgreSQL (Supabase). Cache: Redis (ioredis). Jobs: BullMQ.
+- AI: @anthropic-ai/sdk, model "claude-sonnet-4-20250514". All AI logic in @rideai/ai-core.
+- Maps: @googlemaps/google-maps-services-js. Payments: Razorpay.
+- Scraping: playwright-extra + puppeteer-extra-plugin-stealth.
+- Validation: Zod at every boundary. Testing: Vitest.
+
+## Conventions
+- Shared enums/types/utils live ONLY in @rideai/shared. Import, don't redefine.
+- Workspace packages are imported as @rideai/shared, @rideai/db, @rideai/ai-core, @rideai/scrapers.
+- Every exported function: explicit return type + try/catch around I/O + meaningful errors.
+- Parse all external/untrusted data (HTTP bodies, Claude responses, scraper output) with Zod.
+- Intent parsing must use Claude tool_use for structured output.
+- Dark theme tokens: bg #0F0F1A, primary indigo #6366F1, cards rgba(255,255,255,0.05).
+- Money in rupees as numbers; display via formatPrice() from @rideai/shared.
+
+## Scraper rules
+- Use playwright-extra + stealth. Random 2000-4000ms human delays between actions.
+- Rotate 3 test accounts/platform via env vars. Use Bright Data proxies when configured.
+- Scrapers return typed results; they never write to the DB directly.
+- Respect target ToS/law — committed scrapers are stubs with TODO selectors.
+
+## Don'ts
+- No Express, no yarn, no .js source.
+- No secrets in code — use .env (.env.example documents all vars).
+- No duplicate domain types outside @rideai/shared.

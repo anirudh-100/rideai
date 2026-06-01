@@ -1,0 +1,48 @@
+# Render blueprint — defines all RideAI services so a single "New Blueprint Instance"
+# in the Render dashboard provisions them in one click. After connecting this repo,
+# set the `sync: false` env vars in the Render UI (secrets that should never live in git).
+#
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  # ---------------------------------------------------------------------------
+  # Hono API backend
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: rideai-backend
+    runtime: node
+    region: singapore # closest Render region to India (Mumbai not available)
+    plan: free        # 750 hrs/mo, sleeps after 15 min idle on free plan
+    # Install workspace deps + generate Prisma client at the monorepo root.
+    buildCommand: npm ci && npx prisma generate --schema packages/db/prisma/schema.prisma
+    # tsx runs TypeScript directly — no compile step needed.
+    startCommand: cd apps/backend && npm run start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Render injects PORT automatically; we read process.env.PORT in env.ts.
+      - key: SCRAPER_MODE
+        value: mock
+      # --- Secrets — set in Render dashboard, NEVER commit ---
+      - key: DATABASE_URL          # Supabase pooled connection string
+        sync: false
+      - key: ANTHROPIC_API_KEY     # Claude
+        sync: false
+      - key: REDIS_URL             # Optional — leave blank to disable caching
+        sync: false
+      - key: GOOGLE_MAPS_API_KEY   # Optional — falls back to pseudo-geocode
+        sync: false
+      - key: ALLOWED_ORIGINS       # e.g. "https://rideai.vercel.app,https://rideai.in"
+        sync: false
+      - key: SENTRY_DSN            # Optional — error tracking
+        sync: false
+      - key: SUPABASE_URL          # For server-side auth verification
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAZORPAY_KEY_ID       # Optional
+        sync: false
+      - key: RAZORPAY_KEY_SECRET   # Optional
+        sync: false
