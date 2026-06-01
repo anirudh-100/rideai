@@ -1,4 +1,11 @@
 import '../global.css';
+// NativeWind v4 dark-mode mode must be set BEFORE anything tries to control
+// the color scheme. Without this, Appearance.setColorScheme() throws
+// "Cannot manually set color scheme, as dark mode is type 'media'" at mount.
+import { StyleSheet } from 'react-native';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(StyleSheet as any).setFlag?.('darkMode', 'class');
+
 // Sentry init runs at module load so it can capture errors from anywhere in
 // the app. No-op on web; no-op on native when EXPO_PUBLIC_SENTRY_DSN missing.
 import { Sentry, initSentry } from '../services/sentry';

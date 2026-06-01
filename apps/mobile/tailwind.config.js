@@ -1,6 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
+  // Use class-based dark mode so the app can force dark via StyleSheet.setFlag
+  // (matches userInterfaceStyle: "dark" in app.json).
+  darkMode: 'class',
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
