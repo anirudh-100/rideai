@@ -1,0 +1,51 @@
+<!--
+  Splash screen artwork — shown briefly while the app boots.
+  Centred on the dark background colour from app.json (#0A0A14).
+  resizeMode: "contain" — keep aspect ratio, fit within screen.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048" width="2048" height="2048">
+  <defs>
+    <linearGradient id="spark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#7C7BFF"/>
+    </linearGradient>
+    <linearGradient id="text" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="55%" stop-color="#FFFFFF"/>
+      <stop offset="55%" stop-color="#7C7BFF"/>
+      <stop offset="100%" stop-color="#7C7BFF"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Solid dark background — matches app.json splash.backgroundColor -->
+  <rect width="2048" height="2048" fill="#0A0A14"/>
+
+  <!-- Centred sparkle + wordmark -->
+  <g transform="translate(1024 950)">
+    <!-- Soft halo -->
+    <circle cx="0" cy="0" r="280" fill="#7C7BFF" opacity="0.12"/>
+    <!-- ✦ mark -->
+    <path
+      d="M 0,-180 L 42,-42 L 180,0 L 42,42 L 0,180 L -42,42 L -180,0 L -42,-42 Z"
+      fill="url(#spark)"
+    />
+  </g>
+
+  <!-- Wordmark: "Ride" white, "AI" indigo -->
+  <text
+    x="1024" y="1280"
+    font-family="-apple-system, system-ui, sans-serif"
+    font-size="120" font-weight="700"
+    text-anchor="middle"
+    letter-spacing="-2"
+    fill="url(#text)"
+  >RideAI</text>
+
+  <text
+    x="1024" y="1340"
+    font-family="-apple-system, system-ui, sans-serif"
+    font-size="32" font-weight="500"
+    text-anchor="middle"
+    fill="#9CA3AF"
+  >One prompt. Every platform.</text>
+</svg>

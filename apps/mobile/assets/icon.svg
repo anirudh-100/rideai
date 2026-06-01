@@ -1,0 +1,48 @@
+<!--
+  RideAI app icon — source artwork.
+
+  This is the master file. Generate the PNGs Expo + the app stores need by
+  running the commands in assets/README.md. App stores reject icons with alpha,
+  rounded corners, or sizes other than 1024×1024 for iOS.
+
+  Design: deep indigo background with the ✦ brand mark in white. Subtle
+  radial gradient adds depth so the icon doesn't look flat on the home screen.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#8B8AFF"/>
+      <stop offset="100%" stop-color="#4F4DCC"/>
+    </radialGradient>
+    <linearGradient id="spark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#E0E0FF"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+
+  <!-- Soft inner highlight -->
+  <ellipse cx="512" cy="380" rx="500" ry="320" fill="#FFFFFF" opacity="0.08"/>
+
+  <!-- ✦ mark — 4-pointed sparkle, geometric -->
+  <g transform="translate(512 512)" filter="url(#glow)">
+    <path
+      d="M 0,-360 L 80,-80 L 360,0 L 80,80 L 0,360 L -80,80 L -360,0 L -80,-80 Z"
+      fill="url(#spark)"
+    />
+    <!-- Tiny accent spark for depth -->
+    <path
+      d="M 220,-220 L 240,-160 L 300,-140 L 240,-120 L 220,-60 L 200,-120 L 140,-140 L 200,-160 Z"
+      fill="#FFFFFF" opacity="0.9"
+    />
+  </g>
+</svg>

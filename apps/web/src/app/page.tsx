@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { PLATFORM_META, Platform, formatPrice } from '@rideai/shared';
 
 const FEATURES = [
@@ -70,7 +71,7 @@ export default function LandingPage() {
       </section>
 
       {/* Platforms */}
-      <section className="mt-20 pb-24 text-center">
+      <section className="mt-20 pb-16 text-center">
         <p className="text-sm font-semibold uppercase tracking-wide text-muted">
           Comparing across
         </p>
@@ -92,6 +93,29 @@ export default function LandingPage() {
           })}
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="border-t border-white/10 pb-10 pt-8 text-sm text-muted">
+        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+          <div className="flex items-center gap-2">
+            <span className="text-primary">✦</span>
+            <span className="font-semibold text-white">RideAI</span>
+            <span className="text-xs">· India</span>
+          </div>
+          <nav className="flex flex-wrap items-center gap-5">
+            <Link href="/privacy" className="hover:text-white">Privacy</Link>
+            <Link href="/terms" className="hover:text-white">Terms</Link>
+            <a href="mailto:hello@rideai.in" className="hover:text-white">
+              hello@rideai.in
+            </a>
+          </nav>
+        </div>
+        <p className="mt-6 text-center text-xs text-muted">
+          © {new Date().getFullYear()} RideAI. Uber, Ola, Rapido, Zomato, Swiggy,
+          Zepto and Blinkit are trademarks of their respective owners. RideAI is an
+          independent aggregator, not affiliated with these platforms.
+        </p>
+      </footer>
     </main>
   );
 }

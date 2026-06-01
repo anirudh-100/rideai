@@ -1,0 +1,22 @@
+<!--
+  Android adaptive icon FOREGROUND layer.
+  Android draws the background separately (we set #0A0A14 in app.json).
+  Foreground must have ~33% safe-area margin so masks don't crop the mark.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="spark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B8AFF"/>
+      <stop offset="100%" stop-color="#5B5BE0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Foreground only — Android composites this over a coloured background.
+       Keep important art inside the inner 66% (centred). -->
+  <g transform="translate(512 512)">
+    <path
+      d="M 0,-260 L 60,-60 L 260,0 L 60,60 L 0,260 L -60,60 L -260,0 L -60,-60 Z"
+      fill="url(#spark)"
+    />
+  </g>
+</svg>
