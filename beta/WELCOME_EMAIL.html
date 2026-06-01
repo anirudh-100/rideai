@@ -1,0 +1,102 @@
+<!--
+  RideAI beta welcome email
+  Sent ~30 min after a tester is added to TestFlight / Play Internal Testing.
+  Replace {{tester_name}}, {{install_link}}, {{your_name}}, {{your_email}}.
+  Inline styles only — email clients strip <style>.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Welcome to RideAI beta</title>
+</head>
+<body style="margin:0;padding:0;background:#0A0A14;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#FFFFFF;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0A0A14;padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" style="max-width:560px;background:#13131F;border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:32px;">
+          <tr>
+            <td>
+              <!-- Brand -->
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:24px;">
+                <span style="color:#7C7BFF;font-size:28px;">✦</span>
+                <span style="font-size:24px;font-weight:700;letter-spacing:-0.5px;">Ride<span style="color:#7C7BFF;">AI</span></span>
+              </div>
+
+              <h1 style="font-size:24px;font-weight:700;margin:0 0 12px;letter-spacing:-0.5px;">
+                You're in, {{tester_name}} 🎉
+              </h1>
+              <p style="font-size:15px;line-height:1.6;color:#9CA3AF;margin:0 0 24px;">
+                Thanks for joining the RideAI beta. You're one of ~25 people getting early access
+                before public launch. Here's what to do next.
+              </p>
+
+              <!-- Install CTA -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+                <tr>
+                  <td align="center" style="background:#7C7BFF;border-radius:16px;">
+                    <a href="{{install_link}}"
+                       style="display:block;padding:14px 28px;color:#FFFFFF;text-decoration:none;font-weight:600;font-size:15px;letter-spacing:0.3px;">
+                      Install RideAI →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Quick start -->
+              <h2 style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:#9CA3AF;margin:0 0 12px;">
+                60-second quick start
+              </h2>
+              <ol style="padding-left:20px;margin:0 0 24px;color:#FFFFFF;font-size:14px;line-height:1.7;">
+                <li>Install via the button above.</li>
+                <li>Open and enter <strong>your real phone number</strong>. You'll get a 6-digit SMS code.</li>
+                <li>Type any natural prompt — try <em>"Rajiv Chowk to India Gate"</em> to start.</li>
+                <li>You'll see ranked options with the best coupon auto-applied.</li>
+              </ol>
+
+              <!-- Feedback box -->
+              <div style="background:rgba(124,123,255,0.08);border:1px solid rgba(124,123,255,0.30);border-radius:16px;padding:16px 18px;margin:0 0 24px;">
+                <h3 style="font-size:13px;font-weight:600;margin:0 0 6px;color:#7C7BFF;">
+                  ✦ What helps us most
+                </h3>
+                <p style="font-size:13px;line-height:1.6;color:#FFFFFF;margin:0;">
+                  Screenshot anything that feels confusing, cheap, or broken. Even a one-line
+                  "this button didn't do what I expected" tells us 90% of what we need.
+                  In-app: <strong>Profile → Send feedback</strong>.
+                </p>
+              </div>
+
+              <!-- Known limits -->
+              <h2 style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:#9CA3AF;margin:0 0 12px;">
+                Known limits during beta
+              </h2>
+              <ul style="padding-left:20px;margin:0 0 24px;color:#9CA3AF;font-size:13px;line-height:1.7;">
+                <li>Ride prices are <strong>estimated</strong> — real platform APIs come post-beta.</li>
+                <li>Booking opens the platform's app/site — payment is completed there.</li>
+                <li>Only "book now" is supported (no scheduling yet).</li>
+                <li>India-only for v0.</li>
+              </ul>
+
+              <!-- Footer -->
+              <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:24px 0;" />
+              <p style="font-size:12px;line-height:1.6;color:#6B7280;margin:0;">
+                Reply to this email anytime with feedback, screenshots, or questions —
+                I read every one.
+                <br /><br />
+                — {{your_name}}<br />
+                <a href="mailto:{{your_email}}" style="color:#7C7BFF;text-decoration:none;">{{your_email}}</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+
+        <p style="max-width:560px;font-size:11px;color:#6B7280;text-align:center;margin:16px auto 0;">
+          You're receiving this because you agreed to test RideAI.
+          To stop receiving beta updates, just reply "unsubscribe".
+        </p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

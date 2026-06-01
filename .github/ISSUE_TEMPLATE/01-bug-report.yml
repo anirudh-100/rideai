@@ -1,0 +1,86 @@
+name: 🐛 Bug report
+description: Something broke, crashed, or behaved unexpectedly.
+title: "[bug]: "
+labels: ["bug", "beta"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking a moment to report this. Even partial info is useful — fill what you can.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: One or two sentences. "I tapped X and Y happened instead of Z."
+      placeholder: "I typed 'biryani' and tapped Compare. The screen went blank for 10 seconds, then showed a spinner that never stopped."
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      description: Optional — sometimes this is obvious, sometimes not.
+      placeholder: "I expected to see food options ranked by price."
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: If you can list the exact taps. Skip if it was a one-off.
+      placeholder: |
+        1. Open app
+        2. Type 'biryani under 200'
+        3. Tap Compare now
+        4. Wait 5 seconds
+        5. ...
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Where did this happen?
+      multiple: false
+      options:
+        - iPhone (TestFlight)
+        - Android (Google Play Internal Testing)
+        - Web browser on phone
+        - Web browser on desktop
+        - Not sure
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device / browser
+      description: e.g. "iPhone 14, iOS 17.5" or "Pixel 7, Android 14" or "Chrome 124 on Mac"
+    validations:
+      required: true
+
+  - type: input
+    id: app-version
+    attributes:
+      label: App version
+      description: Bottom of Profile tab, looks like "v0.1.0". Skip if you don't see it.
+
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot or video
+      description: Drag-and-drop into this box. Even better than text.
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Any console output?
+      description: Only if you happen to be technical and have devtools open. Otherwise skip.
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Quick checks
+      options:
+        - label: I'm on the latest beta build (close + reopen to be sure)
+        - label: I can reproduce this consistently (not a one-off)

@@ -1,13 +1,16 @@
+import Constants from 'expo-constants';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Linking,
   Modal,
   Platform as RNPlatform,
   Pressable,
   ScrollView,
+  Share,
   Text,
   TextInput,
   View,
@@ -44,6 +47,37 @@ export default function ProfileScreen() {
       fetchProfile().finally(() => setLoading(false));
     }, [fetchProfile]),
   );
+
+  function sendFeedback() {
+    const appVersion = Constants.expoConfig?.version ?? '0.1.0';
+    const platform = `${RNPlatform.OS} ${RNPlatform.Version ?? ''}`.trim();
+    const deviceModel = Constants.deviceName ?? 'unknown device';
+    const subject = 'RideAI beta feedback';
+    const body =
+      `Hey RideAI team,\n\n` +
+      `[What I tried]:\n\n\n` +
+      `[What I expected]:\n\n\n` +
+      `[What actually happened]:\n\n\n` +
+      `---\n` +
+      `Diagnostics (please leave this):\n` +
+      `App version: ${appVersion}\n` +
+      `Platform: ${platform}\n` +
+      `Device: ${deviceModel}\n` +
+      `User: ${userId}\n` +
+      `Phone: ${user?.phone ?? '(demo)'}\n`;
+
+    const mailto = `mailto:beta@rideai.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    // On native, prefer the share sheet so testers can pick email / WhatsApp / etc.
+    // On web, just open mailto in a new tab.
+    if (RNPlatform.OS === 'web') {
+      if (typeof window !== 'undefined') window.open(mailto, '_blank');
+      return;
+    }
+    Share.share({ title: subject, message: body }).catch(() => {
+      Linking.openURL(mailto);
+    });
+  }
 
   function confirmLogout() {
     const doLogout = async () => {
@@ -201,6 +235,14 @@ export default function ProfileScreen() {
             subtitle="FAQ, contact us"
             onPress={() => {}}
           />
+          <View className="h-[1px] bg-hairline" />
+          <MenuRow
+            icon="chatbubble-ellipses-outline"
+            label="Send feedback"
+            subtitle="Bug, idea, or just a vibe check"
+            onPress={sendFeedback}
+            tint="#7C7BFF"
+          />
         </View>
 
         {/* Logout */}
@@ -247,19 +289,24 @@ function MenuRow({
   label,
   subtitle,
   onPress,
+  tint,
 }: {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
   subtitle: string;
   onPress: () => void;
+  tint?: string;
 }) {
   return (
     <Pressable
       onPress={onPress}
       className="flex-row items-center gap-3 px-4 py-3.5 active:bg-card-strong"
     >
-      <View className="h-9 w-9 items-center justify-center rounded-xl bg-surface-2">
-        <Ionicons name={icon} size={16} color="#9CA3AF" />
+      <View
+        className="h-9 w-9 items-center justify-center rounded-xl bg-surface-2"
+        style={tint ? { backgroundColor: `${tint}22` } : undefined}
+      >
+        <Ionicons name={icon} size={16} color={tint ?? '#9CA3AF'} />
       </View>
       <View className="flex-1">
         <Text className="text-[14px] font-medium text-white">{label}</Text>

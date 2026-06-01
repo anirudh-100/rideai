@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Quick beta feedback via WhatsApp
+    url: https://wa.me/919999900000
+    about: For one-line bugs or "this is weird" reactions — fastest channel.
+  - name: 📧 Email the team
+    url: mailto:beta@rideai.in
+    about: For private feedback you'd rather not share publicly.

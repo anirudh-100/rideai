@@ -1,0 +1,42 @@
+name: 💡 Feature request
+description: Something you wish RideAI did.
+title: "[idea]: "
+labels: ["enhancement", "beta"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What's the feature?
+      description: Plain language is fine — "I wish I could…"
+      placeholder: "I wish I could save my home and office addresses so I don't have to type them every time."
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why? What problem does it solve for you?
+      description: This is the part that matters most.
+      placeholder: "I book the same route 5x a week and re-typing 'HSR Layout to Indiranagar' every time is a chore."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: How do you handle this today?
+      description: Either inside RideAI or with another app.
+      placeholder: "Uber remembers my recent rides so I just tap 'Repeat'."
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: How big a difference would this make for you?
+      multiple: false
+      options:
+        - Would change my whole usage pattern
+        - Would use RideAI more often
+        - Would make a specific moment less annoying
+        - Nice to have, not blocking
+    validations:
+      required: true

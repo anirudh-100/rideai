@@ -1,0 +1,48 @@
+name: ✦ General beta feedback
+description: Anything that doesn't fit a bug or feature — first impressions, UI tweaks, "this felt weird".
+title: "[feedback]: "
+labels: ["beta-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Vibe checks are welcome. One-line reactions are welcome. Don't overthink it.
+
+  - type: textarea
+    id: feedback
+    attributes:
+      label: Your feedback
+      description: What's on your mind?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: What's this about?
+      multiple: true
+      options:
+        - First impression
+        - UI / design
+        - Speed / performance
+        - Sign-in / onboarding
+        - Prompt understanding
+        - Price accuracy
+        - Coupon feature
+        - Booking / deep-link
+        - Bookings tab
+        - Profile tab
+        - Push notifications
+        - Other
+
+  - type: dropdown
+    id: sentiment
+    attributes:
+      label: How did this feel?
+      multiple: false
+      options:
+        - 😍 Loved it
+        - 🙂 Liked it
+        - 😐 Meh
+        - 😕 Confused
+        - 😡 Frustrated
