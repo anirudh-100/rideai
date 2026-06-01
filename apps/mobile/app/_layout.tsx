@@ -9,7 +9,9 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 import { AuthProvider, useAuth } from '../contexts/AuthProvider';
+import { getInitError } from '../services/supabase';
 
 const BG = '#0A0A14';
 
@@ -76,36 +78,57 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 }
 
 function RootLayout() {
+  // If Supabase client init failed, surface the error explicitly instead of
+  // letting the AuthProvider silently fall back to demo-mode (which would hide
+  // the real problem from anyone debugging).
+  const supabaseInitError = getInitError();
+
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: BG }}>
-      <StatusBar style="light" />
-      <AuthProvider>
-        <AuthGate>
-          <Stack
-            screenOptions={{
-              headerStyle: { backgroundColor: BG },
-              headerTintColor: '#FFFFFF',
-              headerShadowVisible: false,
-              contentStyle: { backgroundColor: BG },
-              animation: 'fade',
-            }}
-          >
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="welcome"
-              options={{ headerShown: false, presentation: 'modal', gestureEnabled: false }}
-            />
-            <Stack.Screen
-              name="onboarding"
-              options={{ headerShown: false, presentation: 'modal' }}
-            />
-            <Stack.Screen name="results" options={{ title: 'Compare' }} />
-            <Stack.Screen name="booking" options={{ title: 'Confirm booking' }} />
-          </Stack>
-        </AuthGate>
-      </AuthProvider>
-    </GestureHandlerRootView>
+    <ErrorBoundary>
+      <GestureHandlerRootView style={{ flex: 1, backgroundColor: BG }}>
+        <StatusBar style="light" />
+        {supabaseInitError ? (
+          <View style={{ flex: 1, padding: 24, paddingTop: 64, backgroundColor: BG }}>
+            <Text style={{ color: '#EF4444', fontSize: 18, fontWeight: '700' }}>
+              Supabase init failed
+            </Text>
+            <Text style={{ color: '#FCA5A5', fontSize: 13, marginTop: 8 }}>
+              {supabaseInitError}
+            </Text>
+            <Text style={{ color: '#9CA3AF', fontSize: 12, marginTop: 16 }}>
+              Check EXPO_PUBLIC_SUPABASE_URL + EXPO_PUBLIC_SUPABASE_ANON_KEY in apps/mobile/.env, then restart Expo.
+            </Text>
+          </View>
+        ) : (
+          <AuthProvider>
+            <AuthGate>
+              <Stack
+                screenOptions={{
+                  headerStyle: { backgroundColor: BG },
+                  headerTintColor: '#FFFFFF',
+                  headerShadowVisible: false,
+                  contentStyle: { backgroundColor: BG },
+                  animation: 'fade',
+                }}
+              >
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="welcome"
+                  options={{ headerShown: false, presentation: 'modal', gestureEnabled: false }}
+                />
+                <Stack.Screen
+                  name="onboarding"
+                  options={{ headerShown: false, presentation: 'modal' }}
+                />
+                <Stack.Screen name="results" options={{ title: 'Compare' }} />
+                <Stack.Screen name="booking" options={{ title: 'Confirm booking' }} />
+              </Stack>
+            </AuthGate>
+          </AuthProvider>
+        )}
+      </GestureHandlerRootView>
+    </ErrorBoundary>
   );
 }
 
