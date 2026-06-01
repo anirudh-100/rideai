@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* NativeWind v4 reads --css-interop-darkMode from :root to know whether dark
+   mode is 'class' or 'media'. Without this, react-native-css-interop defaults
+   to 'media' and Appearance.setColorScheme() throws "Cannot manually set
+   color scheme" at app mount, blanking the screen. */
+:root {
+  --css-interop-darkMode: class dark;
+}
+
+/* Force the dark background on the html shell so first paint isn't white. */
+html,
+body {
+  background-color: #0A0A14;
+}
