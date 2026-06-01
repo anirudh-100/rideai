@@ -16,6 +16,7 @@ import {
   formatPrice,
   type Platform,
 } from '@rideai/shared';
+import { useAuth } from '../contexts/AuthProvider';
 import { createBooking } from '../services/api';
 import { googleMapsDirectionsUrl, openDeepLink, type GeoPoint } from '../services/deepLinks';
 import { session } from '../services/session';
@@ -36,6 +37,7 @@ const DEFAULT_DROP: GeoPoint = { lat: 28.6129, lng: 77.2295 };
 
 export default function BookingScreen() {
   const router = useRouter();
+  const { userId } = useAuth();
   const selected = session.selected;
   const intent = session.intent;
   const [payment, setPayment] = useState<PaymentMethod>('GPay');
@@ -64,7 +66,7 @@ export default function BookingScreen() {
     setBusy(true);
     try {
       await createBooking({
-        userId: session.userId,
+        userId,
         platform: chosen.platform,
         serviceType: chosen.serviceType,
         vehicleType: chosen.vehicleType ?? null,

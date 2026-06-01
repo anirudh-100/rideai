@@ -17,6 +17,7 @@ import {
   formatPrice,
   type PlatformPrice,
 } from '@rideai/shared';
+import { useAuth } from '../contexts/AuthProvider';
 import { comparePrices } from '../services/api';
 import { mockRidePrices } from '../services/mock';
 import { session } from '../services/session';
@@ -340,6 +341,7 @@ function ResultCard({
 
 export default function ResultsScreen() {
   const router = useRouter();
+  const { userId } = useAuth();
   const intent = session.intent;
   const [loading, setLoading] = useState(true);
   const [results, setResults] = useState<PlatformPrice[]>([]);
@@ -357,7 +359,7 @@ export default function ResultsScreen() {
         return;
       }
       try {
-        const res = await comparePrices(intent, session.userId);
+        const res = await comparePrices(intent, userId);
         if (!active) return;
         if (res.results.length > 0) {
           setResults(res.results);
@@ -378,7 +380,7 @@ export default function ResultsScreen() {
     return () => {
       active = false;
     };
-  }, [intent]);
+  }, [intent, userId]);
 
   const isRide = !intent || intent.serviceType === ServiceType.RIDE;
 

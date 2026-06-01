@@ -117,6 +117,35 @@ export async function getProfile(userId: string): Promise<{
   return data;
 }
 
+export async function listBookings(
+  userId: string,
+  opts: { limit?: number; offset?: number } = {},
+): Promise<{ bookings: BookingResult[]; limit: number; offset: number }> {
+  const { data } = await api.get(`/api/users/${userId}/bookings`, {
+    params: opts,
+  });
+  return data;
+}
+
+export async function updateProfile(
+  userId: string,
+  patch: { name?: string; city?: string; email?: string },
+): Promise<{ ok: true; profile: Partial<UserProfile> }> {
+  const { data } = await api.patch(`/api/users/${userId}`, patch);
+  return data;
+}
+
+export async function upsertUser(input: {
+  id: string;
+  phone: string;
+  email?: string | null;
+  name?: string | null;
+  city?: string | null;
+}): Promise<{ ok: true; userId: string }> {
+  const { data } = await api.post('/api/users', input);
+  return data;
+}
+
 export async function saveOnboarding(
   userId: string,
   platforms: Platform[],

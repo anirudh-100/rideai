@@ -17,6 +17,7 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { prisma } from '@rideai/db';
 import { env } from './env';
+import { attachAuth } from './middleware/auth';
 import { bookingsRoute } from './routes/bookings';
 import { couponsRoute } from './routes/coupons';
 import { intentRoute } from './routes/intent';
@@ -35,6 +36,9 @@ const allowedOrigins = (env.ALLOWED_ORIGINS ?? '')
   .filter(Boolean);
 
 app.use('*', logger());
+// Attach userId from Bearer JWT to every request (best-effort). Routes that
+// need it strict should apply `requireAuth` from middleware/auth.ts.
+app.use('*', attachAuth);
 app.use(
   '*',
   cors({

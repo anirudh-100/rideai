@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '../../contexts/AuthProvider';
 import { parseIntent } from '../../services/api';
 import { addRecentSearch, localIntentFallback, session } from '../../services/session';
 
@@ -22,6 +23,7 @@ const SUGGESTIONS = [
 
 export default function SearchScreen() {
   const router = useRouter();
+  const { userId } = useAuth();
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -31,7 +33,7 @@ export default function SearchScreen() {
     addRecentSearch(t);
     setLoading(true);
     try {
-      session.intent = await parseIntent(t, session.userId);
+      session.intent = await parseIntent(t, userId);
     } catch {
       session.intent = localIntentFallback(t);
     } finally {

@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PLATFORM_META, Platform } from '@rideai/shared';
+import { useAuth } from '../../contexts/AuthProvider';
 import { parseIntent } from '../../services/api';
 import { addRecentSearch, localIntentFallback, session } from '../../services/session';
 
@@ -36,6 +37,7 @@ const QUICK_ACTIONS: Array<{
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { userId } = useAuth();
   const [prompt, setPrompt] = useState('');
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -106,7 +108,7 @@ export default function HomeScreen() {
     addRecentSearch(text);
     setLoading(true);
     try {
-      session.intent = await parseIntent(text, session.userId);
+      session.intent = await parseIntent(text, userId);
     } catch {
       session.intent = localIntentFallback(text);
     } finally {

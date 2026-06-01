@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PLATFORM_META, Platform } from '@rideai/shared';
+import { useAuth } from '../contexts/AuthProvider';
 import { saveOnboarding } from '../services/api';
 import { session } from '../services/session';
 
@@ -10,6 +11,7 @@ const ALL_PLATFORMS = Object.values(Platform);
 
 export default function OnboardingScreen() {
   const router = useRouter();
+  const { userId } = useAuth();
   const [selected, setSelected] = useState<Set<Platform>>(
     new Set(session.selfReportedPlatforms),
   );
@@ -40,7 +42,7 @@ export default function OnboardingScreen() {
     session.selfReportedPlatforms = platforms;
     setSaving(true);
     try {
-      await saveOnboarding(session.userId, platforms);
+      await saveOnboarding(userId, platforms);
     } catch {
       // best-effort; the selection is kept locally in the session
     } finally {
