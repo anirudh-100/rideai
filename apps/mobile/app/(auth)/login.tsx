@@ -88,7 +88,9 @@ export default function LoginScreen() {
     setBusy(true);
     try {
       await verifyOtp(phone, code);
-      router.replace('/(tabs)');
+      // Route through /welcome — it checks profile and either skips ahead
+      // (returning users) or captures name/city (new signups).
+      router.replace('/welcome');
     } catch (err) {
       setError((err as Error).message);
     } finally {
