@@ -43,6 +43,16 @@ export interface AuthContextValue {
   sendOtp: (phone: string) => Promise<void>;
   /** Verify the code and complete sign-in. */
   verifyOtp: (phone: string, token: string) => Promise<void>;
+  /**
+   * Single email entry point: tries sign-in first, falls back to sign-up.
+   * Resolves with `{ confirmationRequired: true }` if Supabase requires email
+   * verification before the new account can sign in (the user must click a
+   * link in their inbox to complete signup).
+   */
+  signInOrSignUpEmail: (
+    email: string,
+    password: string,
+  ) => Promise<{ confirmationRequired: boolean }>;
   /** Sign out and return the app to the login screen. */
   signOut: () => Promise<void>;
 }
@@ -120,6 +130,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [supabase],
   );
 
+  const signInOrSignUpEmail = useCallback(
+    async (email: string, password: string) => {
+      if (!supabase) throw new Error('Auth not configured.');
+
+      // 1. Try to sign in as an existing user.
+      const signIn = await supabase.auth.signInWithPassword({ email, password });
+      if (!signIn.error) return { confirmationRequired: false };
+
+      // 2. If the error is "invalid credentials", attempt sign-up.
+      const isInvalidCreds = /invalid login|invalid credentials/i.test(
+        signIn.error.message,
+      );
+      if (!isInvalidCreds) throw new Error(signIn.error.message);
+
+      const signUp = await supabase.auth.signUp({ email, password });
+      if (signUp.error) throw new Error(signUp.error.message);
+
+      // If Supabase emitted a session, we're signed in immediately. Otherwise
+      // email confirmation is enabled and the user must click a link.
+      return { confirmationRequired: !signUp.data.session };
+    },
+    [supabase],
+  );
+
   const signOut = useCallback(async () => {
     if (!supabase) return;
     await supabase.auth.signOut();
@@ -137,6 +171,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         accessToken: null,
         sendOtp,
         verifyOtp,
+        signInOrSignUpEmail,
         signOut,
       };
     }
@@ -149,9 +184,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       accessToken: session?.access_token ?? null,
       sendOtp,
       verifyOtp,
+      signInOrSignUpEmail,
       signOut,
     };
-  }, [authConfigured, ready, session, sendOtp, verifyOtp, signOut]);
+  }, [authConfigured, ready, session, sendOtp, verifyOtp, signInOrSignUpEmail, signOut]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
