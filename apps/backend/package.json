@@ -20,6 +20,7 @@
     "@rideai/db": "*",
     "@rideai/scrapers": "*",
     "@rideai/shared": "*",
+    "@sentry/node": "^10.55.0",
     "@supabase/supabase-js": "^2.106.2",
     "bullmq": "^5.34.5",
     "dotenv": "^16.4.7",

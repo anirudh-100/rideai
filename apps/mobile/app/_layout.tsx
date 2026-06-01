@@ -1,4 +1,9 @@
 import '../global.css';
+// Sentry init runs at module load so it can capture errors from anywhere in
+// the app. No-op when EXPO_PUBLIC_SENTRY_DSN is missing (dev mode).
+import { Sentry, initSentry } from '../services/sentry';
+const sentryEnabled = initSentry();
+
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
@@ -34,7 +39,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-export default function RootLayout() {
+function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: BG }}>
       <StatusBar style="light" />
@@ -62,3 +67,8 @@ export default function RootLayout() {
     </GestureHandlerRootView>
   );
 }
+
+// Wrap with Sentry's error boundary when enabled so JS crashes are captured
+// AND a fallback UI renders instead of a blank screen. When Sentry isn't
+// configured (dev), export the bare component.
+export default sentryEnabled ? Sentry.wrap(RootLayout) : RootLayout;

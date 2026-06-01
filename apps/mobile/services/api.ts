@@ -152,3 +152,21 @@ export async function saveOnboarding(
 ): Promise<void> {
   await api.post(`/api/users/${userId}/onboarding`, { platforms });
 }
+
+export interface PlaceSuggestion {
+  description: string;
+  placeId: string;
+  mainText: string;
+  secondaryText?: string;
+}
+
+export async function autocompletePlaces(
+  q: string,
+  sessionToken?: string,
+): Promise<PlaceSuggestion[]> {
+  const { data } = await api.get<{ suggestions: PlaceSuggestion[] }>(
+    '/api/places/autocomplete',
+    { params: { q, session: sessionToken } },
+  );
+  return data.suggestions;
+}

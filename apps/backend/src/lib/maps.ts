@@ -1,9 +1,10 @@
 /**
- * Geocoding helper. Uses the Google Maps API when GOOGLE_MAPS_API_KEY is set;
- * otherwise resolves a handful of well-known landmarks and falls back to a
- * deterministic pseudo-geocode around Delhi so the dev flow still works.
+ * Geocoding + places helpers. Uses the Google Maps APIs when
+ * GOOGLE_MAPS_API_KEY is set; otherwise resolves a handful of well-known
+ * landmarks and falls back to a deterministic pseudo-geocode around Delhi so
+ * the dev flow still works without a key.
  */
-import { Client } from '@googlemaps/google-maps-services-js';
+import { Client, type PlaceAutocompleteResult } from '@googlemaps/google-maps-services-js';
 import type { Coordinates, LocationRef } from '@rideai/shared';
 import { env } from '../env';
 
@@ -62,4 +63,50 @@ export async function resolveLocation(ref: LocationRef): Promise<Coordinates> {
     throw new Error('resolveLocation: location has neither coordinates nor address.');
   }
   return geocodeAddress(ref.address);
+}
+
+/** Whether real Google Maps APIs are configured (vs landmark/pseudo fallback). */
+export function isMapsEnabled(): boolean {
+  return !!env.GOOGLE_MAPS_API_KEY;
+}
+
+export interface PlaceSuggestion {
+  description: string;
+  placeId: string;
+  mainText: string;
+  secondaryText?: string;
+}
+
+/**
+ * Places Autocomplete — typeahead for address fields. Requires
+ * GOOGLE_MAPS_API_KEY; returns [] when the key is missing so callers can
+ * gracefully fall back to free-text.
+ */
+export async function autocompletePlace(
+  input: string,
+  opts: { sessionToken?: string; lang?: string } = {},
+): Promise<PlaceSuggestion[]> {
+  if (!env.GOOGLE_MAPS_API_KEY) return [];
+  if (!input.trim()) return [];
+
+  try {
+    const res = await getClient().placeAutocomplete({
+      params: {
+        input,
+        key: env.GOOGLE_MAPS_API_KEY,
+        components: ['country:in'],
+        language: opts.lang ?? 'en',
+        sessiontoken: opts.sessionToken,
+      },
+    });
+    return (res.data.predictions ?? []).map((p: PlaceAutocompleteResult) => ({
+      description: p.description,
+      placeId: p.place_id,
+      mainText: p.structured_formatting?.main_text ?? p.description,
+      secondaryText: p.structured_formatting?.secondary_text ?? undefined,
+    }));
+  } catch (err) {
+    console.warn(`autocompletePlace: Google call failed — ${(err as Error).message}`);
+    return [];
+  }
 }

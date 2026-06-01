@@ -11,16 +11,23 @@
  *
  * Background jobs run in a separate process — see `npm run worker`.
  */
+// Sentry must be imported first so it can instrument Node internals.
+import { Sentry, initSentry } from './lib/sentry';
+initSentry();
+
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { prisma } from '@rideai/db';
 import { env } from './env';
+import { isMapsEnabled } from './lib/maps';
+import { isAuthEnabled } from './lib/supabaseServer';
 import { attachAuth } from './middleware/auth';
 import { bookingsRoute } from './routes/bookings';
 import { couponsRoute } from './routes/coupons';
 import { intentRoute } from './routes/intent';
+import { placesRoute } from './routes/places';
 import { pricesRoute } from './routes/prices';
 import { usersRoute } from './routes/users';
 
@@ -71,15 +78,32 @@ app.route('/api/prices', pricesRoute);
 app.route('/api/coupons', couponsRoute);
 app.route('/api/bookings', bookingsRoute);
 app.route('/api/users', usersRoute);
+app.route('/api/places', placesRoute);
 
 app.notFound((c) => c.json({ error: 'Not found' }, 404));
 app.onError((err, c) => {
   console.error('Unhandled error:', err);
+  // Forward to Sentry (no-op when DSN missing).
+  try {
+    Sentry.captureException(err, {
+      tags: { route: c.req.path, method: c.req.method },
+      extra: { userId: c.var.userId ?? null },
+    });
+  } catch {
+    /* don't let Sentry itself break the error response */
+  }
   return c.json({ error: err.message }, 500);
 });
 
 serve({ fetch: app.fetch, port: env.PORT }, (info) => {
   console.log(`🚀 RideAI backend listening on http://localhost:${info.port}`);
+  // Integration status banner — see at a glance which env vars are wired.
+  console.log('  Integrations:');
+  console.log(`    Claude AI:    ${env.ANTHROPIC_API_KEY ? '✓ enabled' : '✗ disabled (intent parsing will 502)'}`);
+  console.log(`    Google Maps:  ${isMapsEnabled() ? '✓ enabled' : '✗ disabled (using landmark/pseudo-geocode fallback)'}`);
+  console.log(`    Supabase:     ${isAuthEnabled() ? '✓ enabled (auth enforced)' : '✗ disabled (demo-user fallback)'}`);
+  console.log(`    Sentry:       ${env.SENTRY_DSN ? '✓ enabled' : '✗ disabled'}`);
+  console.log(`    CORS allow:   ${isProd ? (allowedOrigins.length ? allowedOrigins.join(', ') : '(NONE — set ALLOWED_ORIGINS!)') : 'any (dev)'}`);
 });
 
 export { app };
