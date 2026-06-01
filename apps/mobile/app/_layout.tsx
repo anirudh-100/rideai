@@ -1,7 +1,6 @@
 import '../global.css';
 // Add the `dark` class to the HTML root on web so NativeWind's class-based
 // dark mode (set via --css-interop-darkMode in global.css) actually applies.
-// Without this, the app renders unstyled on first paint.
 if (typeof document !== 'undefined') {
   document.documentElement.classList.add('dark');
 }
@@ -11,7 +10,7 @@ if (typeof document !== 'undefined') {
 import { Sentry, initSentry } from '../services/sentry';
 const sentryEnabled = initSentry();
 
-import { Redirect, Stack, useSegments } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, Text, View } from 'react-native';
@@ -22,10 +21,7 @@ import { getInitError } from '../services/supabase';
 
 const BG = '#0A0A14';
 
-/**
- * Brand splash shown while auth state is still loading.
- * Animated ✦ pulse so cold starts don't feel like a frozen screen.
- */
+/** Animated brand splash overlay shown while auth state loads. */
 function Splash() {
   const pulse = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -43,7 +39,15 @@ function Splash() {
     transform: [{ scale: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1.15] }) }],
   };
   return (
-    <View style={{ flex: 1, backgroundColor: BG, alignItems: 'center', justifyContent: 'center' }}>
+    <View
+      pointerEvents="none"
+      style={{
+        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+        backgroundColor: BG,
+        alignItems: 'center', justifyContent: 'center',
+        zIndex: 1000,
+      }}
+    >
       <Animated.Text style={[{ fontSize: 48, color: '#7C7BFF' }, style]}>✦</Animated.Text>
       <Text style={{ marginTop: 8, fontSize: 24, fontWeight: '700', color: '#FFFFFF', letterSpacing: -0.5 }}>
         Ride<Text style={{ color: '#7C7BFF' }}>AI</Text>
@@ -53,41 +57,63 @@ function Splash() {
 }
 
 /**
- * Synchronous auth-aware redirect.
+ * Auth-aware app shell.
  *
- * We render <Redirect /> based on the current segment vs auth state, which
- * happens DURING render (not in a useEffect). This eliminates the flash-of-
- * wrong-route on cold start.
+ * The Stack MUST always render on first paint so expo-router's navigator
+ * initializes — otherwise router.replace() throws "Attempted to navigate
+ * before mounting the Root Layout component". So instead of short-circuiting
+ * with <Redirect>, we always render the Stack and:
+ *   1. fire router.replace() from useEffect once the navigator is ready
+ *   2. overlay an animated Splash while auth state loads (covers the brief
+ *      flash of "wrong" content before the redirect lands)
  */
-function AuthGate({ children }: { children: React.ReactNode }) {
+function AppShell() {
   const { ready, isAuthed, authConfigured } = useAuth();
+  const router = useRouter();
   const segments = useSegments();
 
-  // 1. While the initial session check is still running → show splash.
-  if (!ready) return <Splash />;
+  useEffect(() => {
+    if (!ready || !authConfigured) return;
+    const inAuthGroup = segments[0] === '(auth)';
+    if (!isAuthed && !inAuthGroup) {
+      router.replace('/(auth)/login');
+    } else if (isAuthed && inAuthGroup) {
+      router.replace('/(tabs)');
+    }
+  }, [ready, isAuthed, authConfigured, segments, router]);
 
-  // 2. Demo mode (no Supabase env) → auth is permissive, render the app.
-  if (!authConfigured) return <>{children}</>;
-
-  const inAuthGroup = segments[0] === '(auth)';
-
-  // 3. Signed-out user trying to access a non-auth route → bounce to /login.
-  if (!isAuthed && !inAuthGroup) {
-    return <Redirect href="/(auth)/login" />;
-  }
-
-  // 4. Signed-in user sitting on the auth stack → bounce home.
-  if (isAuthed && inAuthGroup) {
-    return <Redirect href="/(tabs)" />;
-  }
-
-  return <>{children}</>;
+  return (
+    <View style={{ flex: 1, backgroundColor: BG }}>
+      <Stack
+        screenOptions={{
+          headerStyle: { backgroundColor: BG },
+          headerTintColor: '#FFFFFF',
+          headerShadowVisible: false,
+          contentStyle: { backgroundColor: BG },
+          animation: 'fade',
+        }}
+      >
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="welcome"
+          options={{ headerShown: false, presentation: 'modal', gestureEnabled: false }}
+        />
+        <Stack.Screen
+          name="onboarding"
+          options={{ headerShown: false, presentation: 'modal' }}
+        />
+        <Stack.Screen name="results" options={{ title: 'Compare' }} />
+        <Stack.Screen name="booking" options={{ title: 'Confirm booking' }} />
+      </Stack>
+      {!ready ? <Splash /> : null}
+    </View>
+  );
 }
 
 function RootLayout() {
-  // If Supabase client init failed, surface the error explicitly instead of
-  // letting the AuthProvider silently fall back to demo-mode (which would hide
-  // the real problem from anyone debugging).
+  // Surface Supabase init errors explicitly (otherwise app silently falls back
+  // to demo mode and hides the real problem from anyone debugging).
   const supabaseInitError = getInitError();
 
   return (
@@ -108,30 +134,7 @@ function RootLayout() {
           </View>
         ) : (
           <AuthProvider>
-            <AuthGate>
-              <Stack
-                screenOptions={{
-                  headerStyle: { backgroundColor: BG },
-                  headerTintColor: '#FFFFFF',
-                  headerShadowVisible: false,
-                  contentStyle: { backgroundColor: BG },
-                  animation: 'fade',
-                }}
-              >
-                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen
-                  name="welcome"
-                  options={{ headerShown: false, presentation: 'modal', gestureEnabled: false }}
-                />
-                <Stack.Screen
-                  name="onboarding"
-                  options={{ headerShown: false, presentation: 'modal' }}
-                />
-                <Stack.Screen name="results" options={{ title: 'Compare' }} />
-                <Stack.Screen name="booking" options={{ title: 'Confirm booking' }} />
-              </Stack>
-            </AuthGate>
+            <AppShell />
           </AuthProvider>
         )}
       </GestureHandlerRootView>
@@ -139,5 +142,4 @@ function RootLayout() {
   );
 }
 
-// Wrap with Sentry's error boundary on native when enabled.
 export default sentryEnabled ? Sentry.wrap(RootLayout) : RootLayout;
